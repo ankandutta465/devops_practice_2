@@ -6,7 +6,7 @@ WORKDIR /node
 
 #Copy the Code
 COPY . .
-
+RUN echo "Building"
 #Install the dependecies
 RUN npm install
 RUN npm run test
