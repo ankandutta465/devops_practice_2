@@ -5,7 +5,9 @@ FROM node:12.2.0-alpine
 WORKDIR /node
 
 #Copy the Code
+RUN echo "Copying the code"
 COPY . .
+RUN echo "Building"
 #Install the dependecies
 RUN npm install
 RUN npm run test
