@@ -1,34 +1,42 @@
+@Library("Shared") _
 pipeline{
     agent any
     
     stages{
+        
+        stage("Welcome"){
+            steps{
+                script{
+                    jenkins()
+                }
+            }
+        }
         stage("Code Clone"){
             steps{
-                echo "Code Clone Stage"
-                git url: "https://github.com/ankandutta465/node-todo-cicd-master.git", branch: "main"
+                script{
+                    clone("https://github.com/ankandutta465/devops_practice_2.git", "githubcreds", "main")
+                }
             }
         }
         stage("Code Build & Test"){
             steps{
-                echo "Code Build Stage"
-                sh "docker build -t node-app ."
+                script{
+                    build_test("/var/jenkins_home/workspace/django-todo-delivery/node-todo-cicd-master", "node-todo:latest")
+                }
             }
         }
         stage("Push To DockerHub"){
             steps{
-                withCredentials([usernamePassword(
-                    credentialsId:"dockerHubCreds",
-                    usernameVariable:"dockerHubUser", 
-                    passwordVariable:"dockerHubPass")]){
-                sh 'echo $dockerHubPass | docker login -u $dockerHubUser --password-stdin'
-                sh "docker image tag node-app:latest ${env.dockerHubUser}/node-app:latest"
-                sh "docker push ${env.dockerHubUser}/node-app:latest"
+                script{
+                    dockerPush()
                 }
             }
         }
         stage("Deploy"){
             steps{
-                sh "docker compose down && docker compose up -d --build"
+                dir("/var/jenkins_home/workspace/django-todo-delivery/node-todo-cicd-master"){
+                sh "docker compose down && docker compose up -d"
+                }
             }
         }
     }
